@@ -18,16 +18,16 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ClientApp extends Application implements ClientCallback {
+public class ProxyClientApp extends Application implements ProxyClient {
 
-    private static final Logger LOGGER = Logger.getLogger(ClientApp.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProxyClientApp.class.getName());
     private static final String SERVER_HOST = "localhost"; // or the IP of the server
     private static final int RMI_PORT = 1099;
     private static final String SERVICE_NAME = "GalaxyTruckerService";
 
     private RemoteService serverService;
     private TextArea outputArea;
-    private ClientCallback clientStub;
+    private ProxyClient clientStub;
 
     @Override
     public void start(Stage primaryStage) {
@@ -71,7 +71,7 @@ public class ClientApp extends Application implements ClientCallback {
         }
 
         try {
-            clientStub = (ClientCallback) UnicastRemoteObject.exportObject(this, 0);
+            clientStub = (ProxyClient) UnicastRemoteObject.exportObject(this, 0);
             String registryUrl = "rmi://" + SERVER_HOST + ":" + RMI_PORT + "/" + SERVICE_NAME;
             logOutput("Attempting to connect to: " + registryUrl);
             serverService = (RemoteService) Naming.lookup(registryUrl);
@@ -94,7 +94,7 @@ public class ClientApp extends Application implements ClientCallback {
             return;
         }
         try {
-            String response = serverService.getMessage(clientName);
+            String response = serverService.sendMessage(clientName);
             logOutput("Response from server: " + response);
         } catch (RemoteException e) {
             logOutput("Error during remote call: " + e.getMessage());

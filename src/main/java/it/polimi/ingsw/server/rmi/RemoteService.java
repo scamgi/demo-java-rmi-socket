@@ -4,8 +4,9 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteService extends Remote {
-    String getMessage(String clientName) throws RemoteException;
-    void registerClient(ClientCallback client) throws RemoteException;
+    void registerClient(ProxyClient client) throws RemoteException;
+    void removeClient(ProxyClient client) throws RemoteException;
+    String sendMessage(String clientName) throws RemoteException;
     void broadcastMessage(String message) throws RemoteException;
-    void removeClient(ClientCallback client) throws RemoteException;
+    void broadcastMessage(String message, ProxyClient sender) throws RemoteException;
 }
