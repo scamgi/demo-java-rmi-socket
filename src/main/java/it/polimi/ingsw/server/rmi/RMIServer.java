@@ -5,7 +5,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RMIServer extends UnicastRemoteObject implements RemoteService {
@@ -28,7 +27,7 @@ public class RMIServer extends UnicastRemoteObject implements RemoteService {
         if (client != null && !clients.contains(client)) {
             clients.add(client);
             logger.info("Registered new client.");
-            client.receiveMessage("You have been registered.");
+            client.showMessage("You have been registered.");
         }
     }
 
@@ -36,7 +35,7 @@ public class RMIServer extends UnicastRemoteObject implements RemoteService {
     public void broadcastMessage(String message) throws RemoteException {
         for (ProxyClient client : clients) {
             try {
-                client.receiveMessage(message);
+                client.showMessage(message);
             } catch (RemoteException e) {
                 logger.warning("Error while sending message to the client, it's probably disconnected: " + e.getMessage());
             }
@@ -48,7 +47,7 @@ public class RMIServer extends UnicastRemoteObject implements RemoteService {
         for (ProxyClient proxyClient : clients) {
             try {
                 if (!proxyClient.equals(sender))
-                    proxyClient.receiveMessage(message);
+                    proxyClient.showMessage(message);
             }
             catch (RemoteException e) {
                 logger.warning("Error while sending message to the client, it's probably disconnected: " + e.getMessage());

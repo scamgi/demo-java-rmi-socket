@@ -115,7 +115,7 @@ public class ClientApp extends Application implements ProxyClient {
     }
 
     @Override
-    public void receiveMessage(String message) throws RemoteException {
+    public void showMessage(String message) throws RemoteException {
         logOutput("Message from Server (Callback): " + message);
     }
 
