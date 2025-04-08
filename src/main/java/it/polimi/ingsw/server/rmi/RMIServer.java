@@ -17,9 +17,10 @@ public class RMIServer extends UnicastRemoteObject implements RemoteService {
     }
 
     @Override
-    public String sendMessage(String clientName) throws RemoteException {
+    public String sendMessage(String message) throws RemoteException {
         // TODO: to implement in the future with a json
-        return "test " + clientName;
+        // this is the string that will be sent to the client
+        return "test " + message;
     }
 
     @Override

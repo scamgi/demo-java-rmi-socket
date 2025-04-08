@@ -89,10 +89,6 @@ public class ClientApp extends Application implements ProxyClient {
     }
 
     private void callRemoteMethod(String clientName) {
-        if (serverService == null) {
-            logOutput("You are not connected to the server.");
-            return;
-        }
         try {
             String response = serverService.sendMessage(clientName);
             logOutput("Response from server: " + response);
