@@ -18,9 +18,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ProxyClientApp extends Application implements ProxyClient {
+public class ClientApp extends Application implements ProxyClient {
 
-    private static final Logger LOGGER = Logger.getLogger(ProxyClientApp.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ClientApp.class.getName());
     private static final String SERVER_HOST = "localhost"; // or the IP of the server
     private static final int RMI_PORT = 1099;
     private static final String SERVICE_NAME = "GalaxyTruckerService";

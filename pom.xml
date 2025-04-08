@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                it.polimi.ingsw.server.rmi.ProxyClientApp
+                                it.polimi.ingsw.server.rmi.ClientApp
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
