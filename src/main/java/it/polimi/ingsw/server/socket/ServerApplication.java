@@ -68,7 +68,7 @@ public class ServerApplication {
 
         synchronized (connectedClients) {
             for (ClientHandler handler : connectedClients) {
-                handler.closeConnection();
+                handler.disconnect();
             }
             connectedClients.clear();
         }

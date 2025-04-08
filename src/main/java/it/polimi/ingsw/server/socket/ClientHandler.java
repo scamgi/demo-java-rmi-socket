@@ -42,7 +42,7 @@ public class ClientHandler implements Runnable {
                 server.log("Error handling client " + clientAddress + ": " + e.getMessage());
             }
         } finally {
-            closeConnection();
+            disconnect();
             server.removeClient(this);
         }
     }
@@ -53,12 +53,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void closeConnection() {
-        server.log("Closing connection for " + clientAddress);
+    public void disconnect() {
         try {
             if (in != null) in.close();
             if (out != null) out.close();
             if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+            server.log("Client disconnected: " + clientAddress);
         } catch (IOException e) {
             server.log("Error closing resources for " + clientAddress + ": " + e.getMessage());
         }
