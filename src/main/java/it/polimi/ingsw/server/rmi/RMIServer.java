@@ -1,0 +1,58 @@
+package it.polimi.ingsw.server.rmi;
+
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class RMIServer extends UnicastRemoteObject implements RemoteService {
+    private static final Logger logger = Logger.getLogger(RMIServer.class.getName());
+    private final List<ClientCallback> clients = Collections.synchronizedList(new ArrayList<>());
+
+    public RMIServer() throws RemoteException {
+        super();
+    }
+
+    @Override
+    public String getMessage(String clientName) throws RemoteException {
+        return "test " + clientName;
+    }
+
+    @Override
+    public void registerClient(ClientCallback client) throws RemoteException {
+        if (client != null && !clients.contains(client)) {
+            clients.add(client);
+            logger.info("Registered new client.");
+            client.receiveMessage("You have been registered.");
+        }
+    }
+
+    @Override
+    public void broadcastMessage(String message) throws RemoteException {
+        logger.info("Send broadcast: " + message);
+        List<ClientCallback> clientsToRemove = new ArrayList<>();
+        for (ClientCallback client : clients) {
+            try {
+                client.receiveMessage("BROADCAST: " + message);
+            } catch (RemoteException e) {
+                logger.log(Level.WARNING, "Error while sending message to the client, it's probably disconnected.", e);
+                clientsToRemove.add(client);
+            }
+        }
+        clients.removeAll(clientsToRemove);
+        if (!clientsToRemove.isEmpty()) {
+            logger.info(clientsToRemove.size() + " clients disconnected.");
+        }
+    }
+
+    @Override
+    public void removeClient(ClientCallback client) throws RemoteException {
+        if (client != null && clients.remove(client)) {
+            logger.info("Client disconnected.");
+            broadcastMessage("A client was disconnected.");
+        }
+    }
+}
