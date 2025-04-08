@@ -18,8 +18,8 @@ import java.net.UnknownHostException;
 
 public class ClientApplication extends Application {
 
-    private static final String DEFAULT_SERVER_ADDRESS = "localhost"; // Or server's IP
-    private static final int SERVER_PORT = 12345; // Must match server port
+    private static final String DEFAULT_SERVER_ADDRESS = "localhost";
+    private static final int SERVER_PORT = 12345;
 
     private TextArea messageArea;
     private TextField inputField;
@@ -36,10 +36,9 @@ public class ClientApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        // Window stuff
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
-        // Top: Connection controls
+
         serverAddressField = new TextField(DEFAULT_SERVER_ADDRESS);
         portField = new TextField(String.valueOf(SERVER_PORT));
         portField.setPrefWidth(60);
@@ -47,32 +46,29 @@ public class ClientApplication extends Application {
         connectButton.setOnAction(_ -> toggleConnection());
         HBox connectionBox = new HBox(5, new Label("Server:"), serverAddressField, new Label("Port:"), portField, connectButton);
         root.setTop(connectionBox);
-        // Center: Message display area
+
         messageArea = new TextArea();
         messageArea.setEditable(false);
         messageArea.setWrapText(true);
         root.setCenter(messageArea);
-        // Bottom: Input field and send button
+
         inputField = new TextField();
         inputField.setPromptText("Enter message...");
-        inputField.setOnAction(_ -> sendMessage()); // Allow sending with Enter key
+        inputField.setOnAction(_ -> sendMessage());
         sendButton = new Button("Send");
         sendButton.setOnAction(_ -> sendMessage());
-        sendButton.setDisable(true); // Disabled until connected
-        inputField.setDisable(true); // Disabled until connected
+        sendButton.setDisable(true);
+        inputField.setDisable(true);
         HBox inputBox = new HBox(5, inputField, sendButton);
-        HBox.setHgrow(inputField, javafx.scene.layout.Priority.ALWAYS); // Make input field grow
+        HBox.setHgrow(inputField, javafx.scene.layout.Priority.ALWAYS);
         root.setBottom(inputBox);
         Scene scene = new Scene(root, 500, 400);
         primaryStage.setTitle("JavaFX Client");
         primaryStage.setScene(scene);
-        primaryStage.setOnCloseRequest(_ -> disconnect()); // Disconnect on close
+        primaryStage.setOnCloseRequest(_ -> disconnect());
         primaryStage.show();
     }
 
-    /**
-     * Connects or disconnects the client.
-     */
     private void toggleConnection() {
         if (connected) {
             disconnect();
@@ -81,9 +77,6 @@ public class ClientApplication extends Application {
         }
     }
 
-    /**
-     * Connects the client
-     */
     private void connect() {
         String serverAddress = serverAddressField.getText().trim();
         int port;
@@ -96,7 +89,6 @@ public class ClientApplication extends Application {
 
         log("Attempting to connect to " + serverAddress + ":" + port + "...");
 
-        // Network connection must happen in a background thread, to avoid blocking the UI
         new Thread(() -> {
             try {
                 socket = new Socket(serverAddress, port);
@@ -113,7 +105,6 @@ public class ClientApplication extends Application {
                     portField.setDisable(true);
                 });
 
-                // Start a new thread to continuously listen for server messages
                 startListening();
 
             } catch (UnknownHostException e) {
@@ -126,22 +117,19 @@ public class ClientApplication extends Application {
         }).start();
     }
 
-    /**
-     * Disconnects the application
-     */
     private void disconnect() {
         log("Disconnecting...");
-        connected = false; // Signal listener thread to stop
+        connected = false;
 
         try {
             if (out != null) out.close();
             if (in != null) in.close();
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {
-            // Log quietly or ignore, as we are disconnecting anyway
+
             System.err.println("Error closing client resources: " + e.getMessage());
         } finally {
-            // Reset UI elements on the JavaFX thread
+
             Platform.runLater(this::resetConnectionState);
             log("Disconnected.");
         }
@@ -159,23 +147,22 @@ public class ClientApplication extends Application {
         portField.setDisable(false);
     }
 
-
     private void startListening() {
-        // Listener runs in its own thread
+
         new Thread(() -> {
             try {
                 String serverMessage;
-                // Keep listening as long as we are 'connected' and the input stream is valid
+
                 while (connected && (serverMessage = in.readLine()) != null) {
-                    final String msg = serverMessage; // Final variable for lambda
+                    final String msg = serverMessage;
                     Platform.runLater(() -> log("Server: " + msg));
                 }
             } catch (IOException e) {
-                if (connected) { // Only show error if we didn't intentionally disconnect
+                if (connected) {
                     Platform.runLater(() -> log("Connection lost: " + e.getMessage()));
                 }
             } finally {
-                // If the loop ends (server disconnected or error), ensure we are fully disconnected
+
                 if (connected) {
                     Platform.runLater(this::disconnect);
                 }
@@ -183,9 +170,6 @@ public class ClientApplication extends Application {
         }).start();
     }
 
-    /**
-     * Sends a message to the server
-     */
     private void sendMessage() {
         if (!connected || out == null) {
             log("Not connected to the server.");
@@ -193,14 +177,14 @@ public class ClientApplication extends Application {
         }
         String message = inputField.getText().trim();
         if (!message.isEmpty()) {
-            out.println(message); // Send message to server
-            log("Me: " + message); // Log locally
+            out.println(message);
+            log("Me: " + message);
             inputField.clear();
         }
     }
 
     private void log(String message) {
-        // Ensure UI updates happen on the JavaFX Application Thread
+
         if (Platform.isFxApplicationThread()) {
             messageArea.appendText(message + "\n");
         } else {
